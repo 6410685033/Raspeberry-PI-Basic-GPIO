@@ -1,6 +1,13 @@
+import signal
+import sys
+import RPi.GPIO as GPIO
 import board
 import neopixel
 from gpiozero import Button, MotionSensor
+
+def signal_handler(sig, frame):
+	GPIO.cleanup()
+	sys.exit(0)
 
 class Joystick:
 	pin_left = None
@@ -57,16 +64,13 @@ button_center = 22
 
 joystick = Joystick(button_left, button_right, button_top, button_down, button_center)
 
+signal.signal(signal.SIGINT, signal_handler)
+
 while True:
 	joystick.update(10)
 	x_value = joystick.get_x()
 	y_value = joystick.get_y()
 	center_value = joystick.get_center()
-
 	print(f"X: {x_value}, Y: {y_value}, btn: {center_value}")
-#	if joystick.is_button_pressed():
-#		pixels[0] = (x_value, y_value, 0)
-#	else:
-#		pixels[0] = (0, 0, 0) 
-
 	pixels[0] = (x_value, y_value, center_value)
+
